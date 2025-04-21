@@ -1,0 +1,12 @@
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_instance" "example" {
+  ami           = "ami-0e449927258d45bc4" # Amazon Linux AMI
+  instance_type = "t2.micro"
+
+  tags = {
+    Name = "MyFirstInstance"  # Tag key should be capitalized as "Name" for AWS to recognize it properly
+  }
+}
