@@ -1,0 +1,30 @@
+- name: Install Nginx on AWS EC2
+  hosts: webservers
+  become: true
+
+  tasks:
+    - name: Update APT cache
+      apt:
+        update_cache: yes
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Start Nginx service
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+
+        //
+        [webservers]
+13.61.154.85 ansible_user=ubuntu ansible_ssh_private_key_file=
+
+
+ansible -ihosts.ini webservers -m ping
+ansible-playbook -i hosts.ini install_nginx.yml
+
+        
