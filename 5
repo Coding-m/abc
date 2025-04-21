@@ -1,0 +1,102 @@
+app.yaml
+runtime: python310  #
+entrypoint: python app.py  
+
+handlers:
+  - url: /static  
+    static_dir: static/  
+
+  - url: /.*  
+    script: auto  
+
+//main.py
+#import the required libraries
+
+from flask import Flask,request,render_template,redirect
+import requests
+
+#Flask app initialization
+app=Flask(__name__)
+
+@app.route('/',methods=['GET','POST'])
+def index():
+    if request.method=='POST':
+        pincode=request.form.get('zipCode')
+      
+        if not pincode.isnumeric():
+            return  render_template('index.html',error="Incorrect pin entered or pincode must contain only numbers")
+        url=f"https://api.postalpincode.in/pincode/{pincode}"   
+        response=requests.get(url)
+        data=response.json()        
+
+
+        if data[0]['Status']=='Success':
+          post_office=data[0]['PostOffice'][0]['Name']
+          block=data[0]['PostOffice'][0]['Block']
+          district=data[0]['PostOffice'][0]['District']
+          state=data[0]['PostOffice'][0]['State']
+          return render_template('result.html',post_office=post_office,name=post_office,block=block,district=district,state=state)
+        else:
+            return render_template('error.html', message="No data found for this PIN code.")
+
+    return render_template('index.html')        
+
+
+if __name__=='__main__':
+      app.run(debug=True)      
+
+
+Flask==2.3.3
+requests==2.31.0
+gunicorn==20.1.0
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Post Office Details</title>
+</head>
+<body>
+    <h1>Post Office Details</h1>
+    <p><strong>Name:</strong> {{ post_office }}</p>
+    <p><strong>Block:</strong> {{ block }}</p>
+    <p><strong>District:</strong> {{ district }}</p>
+    <p><strong>State:</strong> {{ state }}</p>
+    <a href="/">Search Again</a>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Post Office Lookup</title>
+</head>
+<body>
+    <h1>Enter PIN Code</h1>
+    <form method="POST">
+        <input type="text" name="zipCode" placeholder="Enter ZIP / PIN code" required>
+        <button type="submit">Search</button>
+    </form>
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+</body>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Post Office Details</title>
+</head>
+<body>
+    <h1>Post Office Details</h1>
+    <p><strong>Name:</strong> {{ post_office }}</p>
+    <p><strong>Block:</strong> {{ block }}</p>
+    <p><strong>District:</strong> {{ district }}</p>
+    <p><strong>State:</strong> {{ state }}</p>
+    <a href="/">Search Again</a>
+</body>
+</html>
+</html>
+
+
